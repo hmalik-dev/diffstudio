@@ -11,11 +11,14 @@ export default function ArtifactCard({
   mode,
   isReadOnly,
   readOnlyTimestamp,
+  generatedAt,
+  modelName,
   onRegenerate,
   addToast,
 }) {
   const sections = parseMarkdown(rawText);
   const cardRef = useRef(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   async function handleCopy() {
     try {
@@ -34,9 +37,9 @@ export default function ArtifactCard({
   async function handleGoogleDocs() {
     try {
       await openInGoogleDocs(rawText);
+      addToast('Google Doc opened — press ⌘V (or Ctrl+V) to paste', 'success');
     } catch {
-      // fell back to clipboard
-      addToast('Copied to clipboard — paste into a new Google Doc', 'info');
+      addToast('Copy failed — check browser permissions', 'error');
     }
   }
 
@@ -44,7 +47,16 @@ export default function ArtifactCard({
     ? relativeTime(readOnlyTimestamp)
     : null;
 
+  const footerTime = generatedAt
+    ? new Date(generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : readOnlyTimestamp
+    ? new Date(readOnlyTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : null;
+
+  const footerModel = modelName || 'claude-haiku';
+
   return (
+    <>
     <div ref={cardRef} className="flex flex-col h-full">
       {/* Read-only banner */}
       {isReadOnly && (
@@ -81,6 +93,9 @@ export default function ArtifactCard({
 
           {/* Action icons */}
           <div className="flex items-center gap-1 flex-shrink-0">
+            <IconButton aria-label="Preview artifact" onClick={() => setPreviewOpen(true)} title="Preview">
+              <EyeIcon />
+            </IconButton>
             <IconButton aria-label="Copy to clipboard" onClick={handleCopy} title="Copy">
               <CopyIcon />
             </IconButton>
@@ -128,9 +143,83 @@ export default function ArtifactCard({
         >
           Regenerate
         </button>
-        <p className="text-xs text-slate-400 text-center mt-2">
-          Generated with claude-sonnet-4-6 · {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </p>
+        {footerTime && (
+          <p className="text-xs text-slate-400 text-center mt-2">
+            Generated with {footerModel} · {footerTime}
+          </p>
+        )}
+      </div>
+    </div>
+
+    {previewOpen && (
+      <PreviewModal
+        grade={grade}
+        topic={topic}
+        mode={mode}
+        sections={sections}
+        onClose={() => setPreviewOpen(false)}
+      />
+    )}
+    </>
+  );
+}
+
+function PreviewModal({ grade, topic, mode, sections, onClose }) {
+  useEffect(() => {
+    function handleKey(e) { if (e.key === 'Escape') onClose(); }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-4 py-8"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Artifact preview"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-full overflow-hidden">
+        {/* Header */}
+        <div className="flex-shrink-0 flex items-center gap-2 px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {grade && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                Grade {grade}
+              </span>
+            )}
+            <span className="text-sm font-semibold text-slate-800 truncate" style={{ fontFamily: '"DM Sans", sans-serif' }}>
+              {topic}
+            </span>
+            {mode && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                {mode.title}
+              </span>
+            )}
+          </div>
+          <button
+            aria-label="Close preview"
+            onClick={onClose}
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors duration-150"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M1 1l12 12M13 1L1 13" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+          {sections.map((section) => (
+            <div key={section.header} className="relative">
+              <div className="absolute left-0 top-0 w-1 h-full rounded-sm bg-amber-400" aria-hidden="true" />
+              <div className="pl-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-2">{section.header}</p>
+                <MarkdownRenderer content={section.content} showCursor={false} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -189,6 +278,15 @@ function IconButton({ children, onClick, 'aria-label': label, title }) {
     >
       {children}
     </button>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
+      <circle cx="8" cy="8" r="2" />
+    </svg>
   );
 }
 

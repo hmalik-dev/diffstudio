@@ -9,6 +9,8 @@ export default function ArtifactPanel({
   mode,
   isReadOnly,
   readOnlyTimestamp,
+  generatedAt,
+  modelName,
   onRegenerate,
   addToast,
 }) {
@@ -25,6 +27,8 @@ export default function ArtifactPanel({
           mode={mode}
           isReadOnly={isReadOnly}
           readOnlyTimestamp={readOnlyTimestamp}
+          generatedAt={generatedAt}
+          modelName={modelName}
           onRegenerate={onRegenerate}
           addToast={addToast}
         />

@@ -63,13 +63,17 @@ function classifyError(err, status) {
 }
 
 export function useStream(apiKey, profile) {
-  const [rawText, setRawText]     = useState('');
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [error, setError]         = useState('');
+  const [rawText, setRawText]         = useState('');
+  const [isStreaming, setIsStreaming]  = useState(false);
+  const [error, setError]             = useState('');
+  const [generatedAt, setGeneratedAt] = useState(null);
+  const [modelName, setModelName]     = useState('');
 
   function reset() {
     setRawText('');
     setError('');
+    setGeneratedAt(null);
+    setModelName('');
   }
 
   /** Returns the full accumulated text on success, null on error. */
@@ -82,6 +86,7 @@ export function useStream(apiKey, profile) {
 
     const useProxy = !apiKey && import.meta.env.VITE_USE_PROXY === 'true';
     const model = useProxy ? 'claude-haiku-4-5-20251001' : 'claude-sonnet-4-6';
+    setModelName(useProxy ? 'claude-haiku' : 'claude-sonnet');
     const endpoint = useProxy ? '/api/chat' : 'https://api.anthropic.com/v1/messages';
     const authHeaders = useProxy
       ? {}
@@ -146,6 +151,7 @@ export function useStream(apiKey, profile) {
         throw new Error('No content received. Try again.');
       }
 
+      setGeneratedAt(Date.now());
       return accumulated;
 
     } catch (err) {
@@ -157,5 +163,5 @@ export function useStream(apiKey, profile) {
     }
   }
 
-  return { generate, isStreaming, rawText, error, reset };
+  return { generate, isStreaming, rawText, error, reset, generatedAt, modelName };
 }

@@ -41,13 +41,7 @@ export function exportAsTxt(rawText, grade, topic) {
  */
 export async function openInGoogleDocs(rawText) {
   const plain = toPlainText(rawText);
-  const encoded = encodeURIComponent(plain);
-  // Google Docs "create" URL — body param is not reliably supported in all browsers
-  const url = `https://docs.google.com/document/create?title=DiffStudio%20Artifact&body=${encoded}`;
-  try {
-    window.open(url, '_blank');
-  } catch {
-    await navigator.clipboard.writeText(plain);
-    throw new Error('clipboard');
-  }
+  // Copy first so it's ready to paste immediately when Docs opens
+  await navigator.clipboard.writeText(plain);
+  window.open('https://docs.google.com/document/create', '_blank');
 }

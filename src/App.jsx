@@ -49,7 +49,7 @@ export default function App() {
 
   const hasProxy = import.meta.env.VITE_USE_PROXY === 'true';
 
-const { generate, isStreaming, rawText, error: streamError, reset } = useStream(apiKey, profile);
+const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, modelName } = useStream(apiKey, profile);
   const {
     history, addEntry, removeEntry, clearHistory,
     addTag, removeTag, togglePin,
@@ -139,6 +139,8 @@ const { generate, isStreaming, rawText, error: streamError, reset } = useStream(
             displayParams={displayParams}
             isReadOnly={isReadOnly}
             readOnlyTimestamp={readOnlyTimestamp}
+            generatedAt={generatedAt}
+            modelName={modelName}
             history={history}
             activeHistoryId={activeHistoryId}
             onSelectHistory={handleSelectHistory}
@@ -196,6 +198,7 @@ function StudioLayout({
   apiKey, addToast,
   onGenerate, onRegenerate, isStreaming, streamError, reset,
   displayText, displayParams, isReadOnly, readOnlyTimestamp,
+  generatedAt, modelName,
   history, activeHistoryId, onSelectHistory,
   onPin, onAddTag, onRemoveTag, onDeleteHistory, onClearHistory,
   mobileSidebarOpen, onOpenSettings,
@@ -242,6 +245,8 @@ function StudioLayout({
           mode={displayParams?.mode}
           isReadOnly={isReadOnly}
           readOnlyTimestamp={readOnlyTimestamp}
+          generatedAt={generatedAt}
+          modelName={modelName}
           onRegenerate={onRegenerate}
           addToast={addToast}
         />
