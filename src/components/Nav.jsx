@@ -48,6 +48,7 @@ export default function Nav({ activeTab, onTabChange, onSettingsOpen, onProfileO
             accentColor="bg-amber-400"
           />
           <NavTab
+            data-tour="analyzer-tab"
             label="Response Analyzer"
             active={activeTab === 'analyzer'}
             onClick={() => onTabChange('analyzer')}
@@ -61,6 +62,7 @@ export default function Nav({ activeTab, onTabChange, onSettingsOpen, onProfileO
       <div className="flex items-center gap-1 flex-shrink-0">
         <div className="relative">
           <button
+            data-tour="profile"
             aria-label="Teacher profile"
             onClick={onProfileOpen}
             title={profileActive ? 'Profile active — generations are personalized' : 'Set up your teacher profile'}
@@ -80,6 +82,7 @@ export default function Nav({ activeTab, onTabChange, onSettingsOpen, onProfileO
         </div>
 
         <button
+          data-tour="settings"
           aria-label="Open API settings"
           onClick={onSettingsOpen}
           className="w-8 h-8 flex items-center justify-center rounded-lg text-sky-200 hover:text-white hover:bg-sky-800 transition-colors duration-150"

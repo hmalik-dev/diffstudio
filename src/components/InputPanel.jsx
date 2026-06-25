@@ -81,11 +81,11 @@ export default function InputPanel({
 
   return (
     <>
-      <div className="max-w-xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-xl mx-auto px-5 py-6 space-y-4">
 
         {/* Section 1 — Your lesson */}
-        <section>
-          <SectionLabel icon={<RulerIcon />}>Your lesson</SectionLabel>
+        <section className="bg-white rounded-xl border border-sky-100 shadow-sm p-5">
+          <SectionLabel icon={<RulerIcon />} step={1}>Your lesson</SectionLabel>
           <div className="space-y-4">
             <div>
               <FieldLabel>Pick your grade</FieldLabel>
@@ -127,8 +127,8 @@ export default function InputPanel({
         </section>
 
         {/* Section 2 — Your students */}
-        <section>
-          <SectionLabel icon={<StudentsIcon />}>What do your students need?</SectionLabel>
+        <section className="bg-white rounded-xl border border-sky-100 shadow-sm p-5">
+          <SectionLabel icon={<StudentsIcon />} step={2}>What do your students need?</SectionLabel>
           <div className="relative mt-2">
             <textarea
               id="context-input"
@@ -155,22 +155,22 @@ export default function InputPanel({
         </section>
 
         {/* Section 3 — Choose a mode */}
-        <section>
-          <SectionLabel icon={<GridIcon />}>Choose a mode</SectionLabel>
+        <section className="bg-white rounded-xl border border-sky-100 shadow-sm p-5">
+          <SectionLabel icon={<GridIcon />} step={3}>Choose a mode</SectionLabel>
           <div className="mt-2">
             <ModeSelector value={mode} onChange={handleModeChange} />
           </div>
         </section>
 
         {/* Generate button */}
-        <div className="pb-8">
+        <div className="pb-6">
           <div className="relative group">
             <button
               type="button"
               onClick={handleGenerate}
               disabled={!canGenerate}
               aria-disabled={!canGenerate}
-              className={`w-full h-12 rounded-lg text-base font-semibold transition-colors duration-150 flex items-center justify-center gap-2 ${
+              className={`w-full h-12 rounded-xl text-base font-semibold transition-colors duration-150 flex items-center justify-center gap-2 ${
                 canGenerate
                   ? 'bg-amber-400 hover:bg-amber-500 text-white shadow-sm'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
@@ -222,12 +222,19 @@ export default function InputPanel({
   );
 }
 
-function SectionLabel({ children, icon }) {
+function SectionLabel({ children, icon, step }) {
   return (
-    <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">
-      {icon && <span className="text-sky-400" aria-hidden="true">{icon}</span>}
-      {children}
-    </p>
+    <div className="flex items-center gap-2 mb-3">
+      {step && (
+        <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+          {step}
+        </span>
+      )}
+      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-500">
+        {icon && <span className="text-sky-400" aria-hidden="true">{icon}</span>}
+        {children}
+      </p>
+    </div>
   );
 }
 

@@ -46,6 +46,7 @@ export default function App() {
   const [activeHistoryId, setActiveHistoryId] = useState(null);
   const [tourOpen, setTourOpen] = useState(true);
   const [tourStep, setTourStep] = useState(0);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const hasProxy = import.meta.env.VITE_USE_PROXY === 'true';
 
@@ -114,7 +115,7 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
   const readOnlyTimestamp = isReadOnly ? activeHistoryItem.timestamp : null;
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ backgroundColor: '#F8F7F4' }}>
+    <div className="flex flex-col min-h-screen">
       <Nav
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -150,6 +151,8 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
             onDeleteHistory={removeEntry}
             onClearHistory={handleClearHistory}
             mobileSidebarOpen={mobileSidebarOpen}
+            sidebarCollapsed={sidebarCollapsed}
+            onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
             onOpenSettings={() => setSettingsOpen(true)}
           />
         ) : (
@@ -201,12 +204,12 @@ function StudioLayout({
   generatedAt, modelName,
   history, activeHistoryId, onSelectHistory,
   onPin, onAddTag, onRemoveTag, onDeleteHistory, onClearHistory,
-  mobileSidebarOpen, onOpenSettings,
+  mobileSidebarOpen, sidebarCollapsed, onToggleSidebar, onOpenSettings,
 }) {
   return (
     <div className="flex flex-1 overflow-hidden w-full h-full">
       {/* Left sidebar */}
-      <div className={`${mobileSidebarOpen ? 'flex' : 'hidden'} lg:flex flex-shrink-0 h-full relative`}>
+      <div className={`${mobileSidebarOpen ? 'flex' : 'hidden'} lg:flex flex-shrink-0 h-full relative transition-all duration-200`}>
         <Sidebar
           history={history}
           activeId={activeHistoryId}
@@ -216,11 +219,13 @@ function StudioLayout({
           onRemoveTag={onRemoveTag}
           onDelete={onDeleteHistory}
           onClear={onClearHistory}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={onToggleSidebar}
         />
       </div>
 
       {/* Center panel */}
-      <div className="flex-1 overflow-y-auto h-full">
+      <div className="flex-1 overflow-y-auto" style={{ height: 'calc(100vh - 48px)' }}>
         <InputPanel
           apiKey={apiKey}
           addToast={addToast}
@@ -234,8 +239,8 @@ function StudioLayout({
 
       {/* Right artifact panel — hidden below 768px */}
       <div
-        className="artifact-panel-col flex-shrink-0 h-full overflow-y-auto border-l border-slate-200"
-        style={{ width: '420px' }}
+        className="artifact-panel-col flex-shrink-0 flex flex-col border-l border-sky-100"
+        style={{ width: '440px', height: 'calc(100vh - 48px)' }}
       >
         <ArtifactPanel
           rawText={displayText}
