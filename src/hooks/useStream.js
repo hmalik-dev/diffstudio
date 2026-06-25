@@ -55,7 +55,7 @@ function classifyError(err, status) {
   if (status === 401) return 'Invalid API key. Check Settings.';
   if (status === 429) return 'Rate limit reached. Wait a moment and try again.';
   if (status >= 500)  return 'Anthropic API error. Try again.';
-  if (status)         return `Request failed (${status}). Try again.`;
+  if (status && status !== 200) return `Request failed (${status}). Try again.`;
   if (err?.name === 'TypeError' || err?.message?.includes('fetch')) {
     return 'Connection failed. Check your internet connection.';
   }
@@ -132,9 +132,12 @@ export function useStream(apiKey, profile) {
           if (!event.startsWith('data: ')) continue;
           const data = event.slice(6).trim();
           if (data === '[DONE]') continue;
+          let apiError = null;
           try {
             const parsed = JSON.parse(data);
-            if (
+            if (parsed.type === 'error') {
+              apiError = parsed.error?.message ?? 'API error';
+            } else if (
               parsed.type === 'content_block_delta' &&
               parsed.delta?.type === 'text_delta'
             ) {
@@ -144,6 +147,7 @@ export function useStream(apiKey, profile) {
           } catch {
             // ignore malformed SSE frames
           }
+          if (apiError) throw new Error(apiError);
         }
       }
 
