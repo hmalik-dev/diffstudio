@@ -1,11 +1,20 @@
 import { MODES } from '../data/modes.js';
 
+const MODE_HOVER = {
+  scaffold:       'hover:bg-sky-50 hover:border-sky-200',
+  miniLesson:     'hover:bg-violet-50 hover:border-violet-200',
+  practice:       'hover:bg-emerald-50 hover:border-emerald-200',
+  exitTicket:     'hover:bg-rose-50 hover:border-rose-200',
+  internalize:    'hover:bg-amber-50 hover:border-amber-200',
+};
+
 export default function ModeSelector({ value, onChange }) {
   return (
     <div className="grid grid-cols-2 gap-3" role="listbox" aria-label="Choose a differentiation mode">
       {MODES.map((mode, idx) => {
         const active = value?.id === mode.id;
         const isLast = idx === MODES.length - 1;
+        const hoverClass = MODE_HOVER[mode.id] ?? 'hover:bg-slate-50 hover:border-slate-300';
         return (
           <button
             key={mode.id}
@@ -21,7 +30,7 @@ export default function ModeSelector({ value, onChange }) {
               ${isLast ? 'col-span-2' : ''}
               ${active
                 ? 'border-amber-400 bg-amber-50 shadow-sm'
-                : 'border-slate-200 bg-white hover:shadow-md hover:border-slate-300'
+                : `border-slate-200 bg-white hover:shadow-md ${hoverClass}`
               }
             `}
             style={{

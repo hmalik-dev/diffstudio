@@ -7,6 +7,7 @@ import ArtifactPanel from './components/ArtifactPanel.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import StudentAnalyzer from './components/StudentAnalyzer.jsx';
 import Toast from './components/Toast.jsx';
+import WelcomeTour from './components/WelcomeTour.jsx';
 import { useStream } from './hooks/useStream.js';
 import { useHistory } from './hooks/useHistory.js';
 
@@ -43,15 +44,12 @@ export default function App() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [currentParams, setCurrentParams] = useState(null);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
+  const [tourOpen, setTourOpen] = useState(true);
+  const [tourStep, setTourStep] = useState(0);
 
   const hasProxy = import.meta.env.VITE_USE_PROXY === 'true';
 
-  // Auto-open settings on first load when no key is available at all
-  useEffect(() => {
-    if (!hasProxy && !apiKey) setSettingsOpen(true);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const { generate, isStreaming, rawText, error: streamError, reset } = useStream(apiKey, profile);
+const { generate, isStreaming, rawText, error: streamError, reset } = useStream(apiKey, profile);
   const {
     history, addEntry, removeEntry, clearHistory,
     addTag, removeTag, togglePin,
@@ -177,6 +175,17 @@ export default function App() {
           onClose={() => setProfileOpen(false)}
         />
       )}
+
+      <WelcomeTour
+        open={tourOpen}
+        step={tourStep}
+        onNext={() => setTourStep((s) => s + 1)}
+        onBack={() => setTourStep((s) => s - 1)}
+        onClose={() => setTourOpen(false)}
+        hasProxy={hasProxy}
+        apiKey={apiKey}
+        onSaveApiKey={handleSaveApiKey}
+      />
 
       <Toast toasts={toasts} removeToast={removeToast} />
     </div>

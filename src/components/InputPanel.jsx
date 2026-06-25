@@ -85,7 +85,7 @@ export default function InputPanel({
 
         {/* Section 1 — Your lesson */}
         <section>
-          <SectionLabel>Your lesson</SectionLabel>
+          <SectionLabel icon={<RulerIcon />}>Your lesson</SectionLabel>
           <div className="space-y-4">
             <div>
               <FieldLabel>Pick your grade</FieldLabel>
@@ -128,7 +128,7 @@ export default function InputPanel({
 
         {/* Section 2 — Your students */}
         <section>
-          <SectionLabel>What do your students need?</SectionLabel>
+          <SectionLabel icon={<StudentsIcon />}>What do your students need?</SectionLabel>
           <div className="relative mt-2">
             <textarea
               id="context-input"
@@ -156,7 +156,7 @@ export default function InputPanel({
 
         {/* Section 3 — Choose a mode */}
         <section>
-          <SectionLabel>Choose a mode</SectionLabel>
+          <SectionLabel icon={<GridIcon />}>Choose a mode</SectionLabel>
           <div className="mt-2">
             <ModeSelector value={mode} onChange={handleModeChange} />
           </div>
@@ -222,11 +222,46 @@ export default function InputPanel({
   );
 }
 
-function SectionLabel({ children }) {
+function SectionLabel({ children, icon }) {
   return (
-    <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">
+    <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">
+      {icon && <span className="text-sky-400" aria-hidden="true">{icon}</span>}
       {children}
     </p>
+  );
+}
+
+function RulerIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="3.5" width="10" height="5" rx="1" />
+      <line x1="3" y1="3.5" x2="3" y2="5" />
+      <line x1="5" y1="3.5" x2="5" y2="4.5" />
+      <line x1="7" y1="3.5" x2="7" y2="5" />
+      <line x1="9" y1="3.5" x2="9" y2="4.5" />
+    </svg>
+  );
+}
+
+function StudentsIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <circle cx="4.5" cy="4" r="2" />
+      <path d="M1 10c0-2 1.6-3.5 3.5-3.5S8 8 8 10" />
+      <circle cx="9" cy="4" r="1.5" />
+      <path d="M9 6.5c1.5 0 2.5 1.2 2.5 2.8" />
+    </svg>
+  );
+}
+
+function GridIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="1" width="4" height="4" rx="0.5" />
+      <rect x="7" y="1" width="4" height="4" rx="0.5" />
+      <rect x="1" y="7" width="4" height="4" rx="0.5" />
+      <rect x="7" y="7" width="4" height="4" rx="0.5" />
+    </svg>
   );
 }
 

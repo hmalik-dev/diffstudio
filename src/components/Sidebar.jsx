@@ -46,14 +46,18 @@ export default function Sidebar({
   const visible = filtered();
 
   return (
-    <aside className="w-64 h-full flex flex-col border-r border-slate-200 bg-white">
+    <aside className="w-64 h-full flex flex-col border-r border-sky-100 bg-white">
       {/* Header */}
       <div className="flex-shrink-0 px-4 pt-4 pb-2">
         <div className="flex items-center justify-between mb-2">
           <h2
-            className="font-bold text-slate-800"
+            className="font-bold text-slate-800 flex items-center gap-1.5"
             style={{ fontFamily: '"DM Sans", sans-serif' }}
           >
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="6.5" cy="6.5" r="5.5" />
+              <path d="M6.5 4v2.5l1.5 1.5" />
+            </svg>
             History
           </h2>
           <div className="flex items-center gap-1">

@@ -26,33 +26,35 @@ export default function EmptyState() {
         className="text-lg font-semibold text-slate-700 mb-2"
         style={{ fontFamily: '"DM Sans", sans-serif' }}
       >
-        Your artifact will appear here
+        Ready when you are
       </h2>
       <p className="text-sm text-slate-500 max-w-xs mb-8">
-        Pick a grade below and describe your class — your artifact streams in here as it generates.
+        Fill in the form on the left — your artifact streams in here as it generates.
       </p>
 
-      {/* Step indicators */}
+      {/* Numbered step indicators */}
       <div className="flex items-center gap-0">
-        <StepIndicator label="Grade" />
+        <StepIndicator number="1" label="Pick a grade" />
         <StepLine />
-        <StepIndicator label="Topic" />
+        <StepIndicator number="2" label="Describe your class" />
         <StepLine />
-        <StepIndicator label="Mode" />
+        <StepIndicator number="3" label="Choose a mode" />
       </div>
     </div>
   );
 }
 
-function StepIndicator({ label }) {
+function StepIndicator({ number, label }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="w-2 h-2 rounded-full bg-slate-300" />
-      <span className="text-xs text-slate-400">{label}</span>
+      <div className="w-6 h-6 rounded-full bg-sky-100 flex items-center justify-center">
+        <span className="text-xs font-bold text-sky-600">{number}</span>
+      </div>
+      <span className="text-xs text-slate-400 text-center max-w-[64px] leading-tight">{label}</span>
     </div>
   );
 }
 
 function StepLine() {
-  return <div className="w-12 h-px bg-slate-200 mb-4 mx-1" />;
+  return <div className="w-10 h-px bg-slate-200 mb-5 mx-1" />;
 }
