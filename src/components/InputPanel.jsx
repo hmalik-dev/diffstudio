@@ -81,10 +81,10 @@ export default function InputPanel({
 
   return (
     <>
-      <div className="max-w-xl mx-auto px-5 py-6 space-y-4">
+      <div className="max-w-xl mx-auto px-6 py-8 space-y-3">
 
         {/* Section 1 — Your lesson */}
-        <section className="bg-white rounded-xl border border-sky-100 shadow-sm p-5">
+        <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
           <SectionLabel icon={<RulerIcon />} step={1}>Your lesson</SectionLabel>
           <div className="space-y-4">
             <div>
@@ -127,7 +127,7 @@ export default function InputPanel({
         </section>
 
         {/* Section 2 — Your students */}
-        <section className="bg-white rounded-xl border border-sky-100 shadow-sm p-5">
+        <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
           <SectionLabel icon={<StudentsIcon />} step={2}>What do your students need?</SectionLabel>
           <div className="relative mt-2">
             <textarea
@@ -155,7 +155,7 @@ export default function InputPanel({
         </section>
 
         {/* Section 3 — Choose a mode */}
-        <section className="bg-white rounded-xl border border-sky-100 shadow-sm p-5">
+        <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
           <SectionLabel icon={<GridIcon />} step={3}>Choose a mode</SectionLabel>
           <div className="mt-2">
             <ModeSelector value={mode} onChange={handleModeChange} />

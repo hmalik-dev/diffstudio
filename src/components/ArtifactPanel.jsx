@@ -17,9 +17,9 @@ export default function ArtifactPanel({
   const hasContent = !!rawText || isStreaming;
 
   return (
-    <div className="flex-1 flex flex-col p-4 min-h-0">
+    <div className="flex-1 flex flex-col min-h-0">
       {hasContent ? (
-        <div className="flex-1 flex flex-col bg-white rounded-xl border border-sky-100 shadow-sm overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col bg-white overflow-hidden min-h-0">
           <ArtifactCard
             rawText={rawText ?? ''}
             isStreaming={isStreaming}

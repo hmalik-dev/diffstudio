@@ -41,16 +41,16 @@ export default function App() {
   const [profileOpen, setProfileOpen]   = useState(false);
   const [profile, setProfile]           = useState(INITIAL_PROFILE);
   const [toasts, setToasts]             = useState([]);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [currentParams, setCurrentParams] = useState(null);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
   const [tourOpen, setTourOpen] = useState(true);
   const [tourStep, setTourStep] = useState(0);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [artifactOpen, setArtifactOpen] = useState(false);
 
   const hasProxy = import.meta.env.VITE_USE_PROXY === 'true';
 
-const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, modelName } = useStream(apiKey, profile);
+  const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, modelName } = useStream(apiKey, profile);
   const {
     history, addEntry, removeEntry, clearHistory,
     addTag, removeTag, togglePin,
@@ -77,7 +77,6 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
 
   async function handleGenerate(params) {
     setCurrentParams(params);
-    // Clear active history selection when generating fresh
     setActiveHistoryId(null);
     const text = await generate(params);
     if (!text) {
@@ -86,6 +85,8 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
     }
     const newId = addEntry(params, text);
     setActiveHistoryId(newId);
+    // Auto-open artifact panel when generation completes
+    setArtifactOpen(true);
   }
 
   function handleRegenerate() {
@@ -94,6 +95,8 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
 
   function handleSelectHistory(id) {
     setActiveHistoryId((prev) => (prev === id ? null : id));
+    setArtifactOpen(true);
+    setHistoryOpen(false);
   }
 
   function handleClearHistory() {
@@ -101,7 +104,6 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
     setActiveHistoryId(null);
   }
 
-  // Dev helper
   if (typeof window !== 'undefined') {
     window.testToast = (msg, type) => addToast(msg ?? 'Test toast!', type ?? 'info');
   }
@@ -113,6 +115,7 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
     : currentParams;
   const isReadOnly        = !!activeHistoryItem && !isStreaming;
   const readOnlyTimestamp = isReadOnly ? activeHistoryItem.timestamp : null;
+  const hasArtifact       = !!(displayText || isStreaming);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -122,47 +125,94 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
         onSettingsOpen={() => setSettingsOpen(true)}
         onProfileOpen={() => setProfileOpen(true)}
         profileActive={profileIsActive(profile)}
-        sidebarHidden={!mobileSidebarOpen}
-        onSidebarToggle={() => setMobileSidebarOpen((v) => !v)}
+        historyCount={history.length}
+        historyOpen={historyOpen}
+        onHistoryToggle={() => setHistoryOpen((v) => !v)}
+        artifactOpen={artifactOpen}
+        onArtifactToggle={() => setArtifactOpen((v) => !v)}
+        hasArtifact={hasArtifact}
+        isStreaming={isStreaming}
       />
 
-      <div className="flex flex-1 overflow-hidden" style={{ paddingTop: '48px', height: '100vh' }}>
+      {/* Main content — full width */}
+      <div className="flex flex-col flex-1" style={{ paddingTop: '48px' }}>
         {activeTab === 'studio' ? (
-          <StudioLayout
-            apiKey={apiKey}
-            addToast={addToast}
-            onGenerate={handleGenerate}
-            onRegenerate={handleRegenerate}
-            isStreaming={isStreaming}
-            streamError={streamError}
-            reset={reset}
-            displayText={displayText}
-            displayParams={displayParams}
-            isReadOnly={isReadOnly}
-            readOnlyTimestamp={readOnlyTimestamp}
-            generatedAt={generatedAt}
-            modelName={modelName}
-            history={history}
-            activeHistoryId={activeHistoryId}
-            onSelectHistory={handleSelectHistory}
-            onPin={togglePin}
-            onAddTag={addTag}
-            onRemoveTag={removeTag}
-            onDeleteHistory={removeEntry}
-            onClearHistory={handleClearHistory}
-            mobileSidebarOpen={mobileSidebarOpen}
-            sidebarCollapsed={sidebarCollapsed}
-            onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
-            onOpenSettings={() => setSettingsOpen(true)}
-          />
+          <div className="flex-1 overflow-y-auto bg-slate-50" style={{ height: 'calc(100vh - 48px)' }}>
+            <InputPanel
+              apiKey={apiKey}
+              addToast={addToast}
+              onGenerate={handleGenerate}
+              isStreaming={isStreaming}
+              streamError={streamError}
+              reset={reset}
+              onOpenSettings={() => setSettingsOpen(true)}
+            />
+          </div>
         ) : (
-          <StudentAnalyzer
-            apiKey={apiKey}
-            addToast={addToast}
-            onAddHistoryEntry={addEntry}
-          />
+          <div className="flex-1 overflow-y-auto bg-slate-50" style={{ height: 'calc(100vh - 48px)' }}>
+            <StudentAnalyzer
+              apiKey={apiKey}
+              addToast={addToast}
+              onAddHistoryEntry={addEntry}
+            />
+          </div>
         )}
       </div>
+
+      {/* History overlay — slides in from left */}
+      {historyOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/20"
+            onClick={() => setHistoryOpen(false)}
+            aria-hidden="true"
+          />
+          <div
+            className="fixed top-12 left-0 z-50 flex flex-col bg-white border-r border-slate-200 shadow-2xl"
+            style={{ width: '280px', height: 'calc(100vh - 48px)' }}
+          >
+            <Sidebar
+              history={history}
+              activeId={activeHistoryId}
+              onSelect={handleSelectHistory}
+              onPin={togglePin}
+              onAddTag={addTag}
+              onRemoveTag={removeTag}
+              onDelete={removeEntry}
+              onClear={handleClearHistory}
+            />
+          </div>
+        </>
+      )}
+
+      {/* Artifact overlay — slides in from right */}
+      {artifactOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/20"
+            onClick={() => setArtifactOpen(false)}
+            aria-hidden="true"
+          />
+          <div
+            className="fixed top-12 right-0 z-50 flex flex-col bg-white border-l border-slate-200 shadow-2xl"
+            style={{ width: '480px', height: 'calc(100vh - 48px)' }}
+          >
+            <ArtifactPanel
+              rawText={displayText}
+              isStreaming={isStreaming}
+              grade={displayParams?.grade}
+              topic={displayParams?.topic}
+              mode={displayParams?.mode}
+              isReadOnly={isReadOnly}
+              readOnlyTimestamp={readOnlyTimestamp}
+              generatedAt={generatedAt}
+              modelName={modelName}
+              onRegenerate={handleRegenerate}
+              addToast={addToast}
+            />
+          </div>
+        </>
+      )}
 
       {settingsOpen && (
         <SettingsModal
@@ -193,69 +243,6 @@ const { generate, isStreaming, rawText, error: streamError, reset, generatedAt, 
       />
 
       <Toast toasts={toasts} removeToast={removeToast} />
-    </div>
-  );
-}
-
-function StudioLayout({
-  apiKey, addToast,
-  onGenerate, onRegenerate, isStreaming, streamError, reset,
-  displayText, displayParams, isReadOnly, readOnlyTimestamp,
-  generatedAt, modelName,
-  history, activeHistoryId, onSelectHistory,
-  onPin, onAddTag, onRemoveTag, onDeleteHistory, onClearHistory,
-  mobileSidebarOpen, sidebarCollapsed, onToggleSidebar, onOpenSettings,
-}) {
-  return (
-    <div className="flex flex-1 overflow-hidden w-full h-full">
-      {/* Left sidebar */}
-      <div className={`${mobileSidebarOpen ? 'flex' : 'hidden'} lg:flex flex-shrink-0 h-full relative transition-all duration-200`}>
-        <Sidebar
-          history={history}
-          activeId={activeHistoryId}
-          onSelect={onSelectHistory}
-          onPin={onPin}
-          onAddTag={onAddTag}
-          onRemoveTag={onRemoveTag}
-          onDelete={onDeleteHistory}
-          onClear={onClearHistory}
-          collapsed={sidebarCollapsed}
-          onToggleCollapse={onToggleSidebar}
-        />
-      </div>
-
-      {/* Center panel */}
-      <div className="flex-1 overflow-y-auto" style={{ height: 'calc(100vh - 48px)' }}>
-        <InputPanel
-          apiKey={apiKey}
-          addToast={addToast}
-          onGenerate={onGenerate}
-          isStreaming={isStreaming}
-          streamError={streamError}
-          reset={reset}
-          onOpenSettings={onOpenSettings}
-        />
-      </div>
-
-      {/* Right artifact panel — hidden below 768px */}
-      <div
-        className="artifact-panel-col flex-shrink-0 flex flex-col border-l border-sky-100"
-        style={{ width: '440px', height: 'calc(100vh - 48px)' }}
-      >
-        <ArtifactPanel
-          rawText={displayText}
-          isStreaming={isStreaming}
-          grade={displayParams?.grade}
-          topic={displayParams?.topic}
-          mode={displayParams?.mode}
-          isReadOnly={isReadOnly}
-          readOnlyTimestamp={readOnlyTimestamp}
-          generatedAt={generatedAt}
-          modelName={modelName}
-          onRegenerate={onRegenerate}
-          addToast={addToast}
-        />
-      </div>
     </div>
   );
 }
